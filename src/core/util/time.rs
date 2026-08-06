@@ -216,7 +216,10 @@ mod tests {
             SimTime::EPOCH.checked_add(Duration::ms(1)),
             Some(SimTime::from_ms(1))
         );
-        assert_eq!(SimTime::from_ms(1).checked_sub(Duration::ms(1)), Some(SimTime::EPOCH));
+        assert_eq!(
+            SimTime::from_ms(1).checked_sub(Duration::ms(1)),
+            Some(SimTime::EPOCH)
+        );
         assert_eq!(max.saturating_add(Duration::MAX), max);
         assert_eq!(SimTime::EPOCH.saturating_sub(Duration::MAX), SimTime::EPOCH);
     }
@@ -225,7 +228,10 @@ mod tests {
     fn orders_chronologically() {
         let mut times = [SimTime::from_sec(1), SimTime::EPOCH, SimTime::from_ps(1)];
         times.sort();
-        assert_eq!(times, [SimTime::EPOCH, SimTime::from_ps(1), SimTime::from_sec(1)]);
+        assert_eq!(
+            times,
+            [SimTime::EPOCH, SimTime::from_ps(1), SimTime::from_sec(1)]
+        );
     }
 
     #[test]

@@ -1,9 +1,10 @@
-use std::{collections::LinkedList, rc::Rc};
+use std::{cmp::Reverse, collections::BTreeSet};
 
 use crate::core::event::Event;
 
+#[derive(Default)]
 pub struct EventQueue {
-    queue: LinkedList<Rc<dyn Event>>,
+    queue: BTreeSet<Reverse<Event>>,
 }
 
 impl EventQueue {}

@@ -38,27 +38,22 @@ impl Duration {
         Self(hour as u128 * 3_600_000_000_000_000)
     }
 
-    /// Exact pico second count.
     pub fn as_ps(&self) -> u128 {
         self.0
     }
 
-    /// Whole nano seconds, truncating any remainder.
     pub fn as_ns(&self) -> u128 {
         self.0 / 1_000
     }
 
-    /// Whole micro seconds, truncating any remainder.
     pub fn as_us(&self) -> u128 {
         self.0 / 1_000_000
     }
 
-    /// Whole milli seconds, truncating any remainder.
     pub fn as_ms(&self) -> u128 {
         self.0 / 1_000_000_000
     }
 
-    /// Whole seconds, truncating any remainder.
     pub fn as_sec(&self) -> u128 {
         self.0 / 1_000_000_000_000
     }
@@ -265,7 +260,10 @@ mod tests {
         assert_eq!(Duration::MAX.checked_mul(2), None);
         assert_eq!(Duration::ps(2).checked_mul(3), Some(Duration::ps(6)));
         assert_eq!(Duration::MAX.saturating_add(Duration::ps(1)), Duration::MAX);
-        assert_eq!(Duration::ZERO.saturating_sub(Duration::ps(1)), Duration::ZERO);
+        assert_eq!(
+            Duration::ZERO.saturating_sub(Duration::ps(1)),
+            Duration::ZERO
+        );
         assert_eq!(Duration::MAX.saturating_mul(2), Duration::MAX);
     }
 
@@ -281,7 +279,10 @@ mod tests {
         let ds = [Duration::ns(1), Duration::ps(500), Duration::ps(500)];
         assert_eq!(ds.iter().sum::<Duration>(), Duration::ns(2));
         assert_eq!(ds.into_iter().sum::<Duration>(), Duration::ns(2));
-        assert_eq!(std::iter::empty::<Duration>().sum::<Duration>(), Duration::ZERO);
+        assert_eq!(
+            std::iter::empty::<Duration>().sum::<Duration>(),
+            Duration::ZERO
+        );
     }
 
     #[test]
