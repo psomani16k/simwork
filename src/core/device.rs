@@ -1,12 +1,15 @@
-use crate::core::{channel::ChannelId, node::NodeId, util::id::IdGenerator};
+use crate::core::{address::IpAddress, channel::ChannelId, node::NodeId, util::id::IdGenerator};
 
 pub struct Device {
     id: DeviceId,
     node: NodeId,
     channel: ChannelId,
+    ip_addr: IpAddress,
+
+    device_impl: Box<dyn DeviceImpl>,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub struct DeviceId(u64);
 
 impl IdGenerator {
@@ -15,3 +18,5 @@ impl IdGenerator {
         DeviceId(id)
     }
 }
+
+pub trait DeviceImpl {}

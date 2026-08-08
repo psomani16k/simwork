@@ -6,6 +6,6 @@ pub mod event;
 pub mod event_queue;
 pub mod node;
 pub mod packet;
-pub mod runner;
+pub mod sim;
 pub mod socket;
 pub mod util;

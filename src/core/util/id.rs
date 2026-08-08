@@ -1,5 +1,4 @@
-static ID_GENERATOR: IdGenerator = IdGenerator(0);
-
+#[derive(Default)]
 pub struct IdGenerator(u64);
 
 impl IdGenerator {
@@ -7,5 +6,9 @@ impl IdGenerator {
         let id = self.0;
         self.0 += 1;
         id
+    }
+
+    pub fn new() -> Self {
+        Default::default()
     }
 }

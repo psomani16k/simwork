@@ -12,6 +12,28 @@ pub struct Packet {
     id: PacketId,
 }
 
+impl Packet {
+    pub fn new(header: Header, data: PacketData, id: PacketId) -> Self {
+        Packet { header, data, id }
+    }
+
+    pub fn dismantle(self) -> (Header, PacketData) {
+        (self.header, self.data)
+    }
+
+    pub fn get_data(self) -> PacketData {
+        self.data
+    }
+
+    pub fn get_id(&self) -> PacketId {
+        self.id
+    }
+
+    pub fn peek(&self) -> PacketData {
+        self.data.clone()
+    }
+}
+
 impl SizeOf for Packet {
     fn size_in_bytes(&self) -> Size {
         let header_size = self.header.size_in_bytes();

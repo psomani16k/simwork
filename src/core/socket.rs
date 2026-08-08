@@ -5,6 +5,7 @@ pub struct Socket {
     application_id: ApplicationId,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct SocketId(u64);
 
 impl IdGenerator {

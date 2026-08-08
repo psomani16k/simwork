@@ -1,9 +1,11 @@
+use std::collections::HashSet;
+
 use crate::core::{device::DeviceId, socket::SocketId, util::id::IdGenerator};
 
 pub struct Node {
     id: NodeId,
-    sockets: Vec<SocketId>,
-    devices: Vec<DeviceId>,
+    sockets: HashSet<SocketId>,
+    devices: HashSet<DeviceId>,
 }
 
 impl Node {
@@ -12,7 +14,7 @@ impl Node {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub struct NodeId(u64);
 
 impl IdGenerator {

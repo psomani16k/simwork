@@ -6,7 +6,7 @@ pub struct Channel {
     tail: DeviceId,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub struct ChannelId(u64);
 
 impl IdGenerator {
