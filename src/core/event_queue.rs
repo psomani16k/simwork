@@ -14,11 +14,11 @@ pub struct EventQueue {
 impl EventQueue {
     pub fn push_event(&mut self, event: Event) {
         let sort_key = EventSortKey {
-            uid: event.get_id(),
-            timestamp: event.get_timestamp(),
+            uid: event.id(),
+            timestamp: event.timestamp(),
         };
         self.queue.insert(sort_key);
-        self.events.insert(event.get_id(), event);
+        self.events.insert(event.id(), event);
     }
 
     pub fn cancel_event(&mut self, event_id: EventId) {

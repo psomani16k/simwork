@@ -40,12 +40,6 @@ impl Sim {
         Self::default()
     }
 
-    pub fn schedule(&mut self, at: SimTime, event_type: EventType) -> EventId {
-        let id = self.id_generator.new_event_id();
-        self.queue.push_event(Event::new(id, at, event_type));
-        id
-    }
-
     pub fn cancel(&mut self, event: EventId) {
         self.queue.cancel_event(event);
     }
@@ -56,32 +50,40 @@ impl Sim {
 
     pub fn run(&mut self) {
         while let Some(event) = self.queue.pop_event() {
-            self.now = event.get_timestamp();
-            if event.is_cancelled() {
+            if event.cancelled() || self.now.is_after(event.timestamp()) {
                 continue;
             }
-            self.handle_event(event.event_type);
+            self.now = event.timestamp();
+            self.handle_event(event);
         }
     }
 
-    fn handle_event(&mut self, event: EventType) {
-        match event {
-            EventType::ApplicationStart(app_id) => {
-                self.applications.get_mut(&app_id).expect("Exists").start()
+    fn handle_event(&mut self, event: Event) {
+        let event_type = event.event_type;
+        match event_type {
+            EventType::ToApplication(app_id, data) => {
+                let now = self.now();
+                let app = self.applications.get_mut(&app_id).expect("Exists");
+                let new_events = app.handle_event(data, now);
+                let _ = self.schedule_raw_events(new_events);
             }
-            EventType::ApplicationStop(app_id) => {
-                self.applications.get_mut(&app_id).expect("Exists").stop()
-            }
-            EventType::ToApplication(from, app_id, data) => {
-                self.applications
-                    .get_mut(&app_id)
-                    .expect("Exists")
-                    .handle_event(from, data);
-            }
-            EventType::ToSocket(from, _socket_id, _data) => todo!(),
-            EventType::ToNode(from, _node_id, _data) => todo!(),
-            EventType::ToDevice(from, _device_id, _data) => todo!(),
-            EventType::ToChannel(from, _channel_id, _data) => todo!(),
+            EventType::ToSocket(_socket_id, _data) => todo!(),
+            EventType::ToNode(_node_id, _data) => todo!(),
+            EventType::ToDevice(_device_id, _data) => todo!(),
+            EventType::ToChannel(_channel_id, _data) => todo!(),
         }
+    }
+
+    fn schedule_raw_events(&mut self, raw_events: Vec<(SimTime, EventType)>) -> Vec<EventId> {
+        raw_events
+            .into_iter()
+            .map(|(at, event_type)| -> EventId { self.schedule(at, event_type) })
+            .collect()
+    }
+
+    pub fn schedule(&mut self, at: SimTime, event_type: EventType) -> EventId {
+        let id = self.id_generator.new_event_id();
+        self.queue.push_event(Event::new(id, at, event_type));
+        id
     }
 }

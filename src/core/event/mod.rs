@@ -1,7 +1,16 @@
+pub mod application_events;
+pub mod entity;
+pub mod node_events;
+pub mod socket_events;
+
 use crate::core::{
     application::ApplicationId,
     channel::ChannelId,
     device::DeviceId,
+    event::{
+        application_events::ApplicationEventData, entity::Entity, node_events::NodeEventData,
+        socket_events::SocketEventData,
+    },
     node::NodeId,
     socket::SocketId,
     util::{id::IdGenerator, time::SimTime},
@@ -10,7 +19,7 @@ use crate::core::{
 pub struct Event {
     id: EventId,
     timestamp: SimTime,
-    is_cancelled: bool,
+    cancelled: bool,
     pub event_type: EventType,
 }
 
@@ -19,25 +28,25 @@ impl Event {
         Event {
             id,
             timestamp,
-            is_cancelled: false,
+            cancelled: false,
             event_type,
         }
     }
 
-    pub fn get_id(&self) -> EventId {
+    pub fn id(&self) -> EventId {
         self.id
     }
 
-    pub fn get_timestamp(&self) -> SimTime {
+    pub fn timestamp(&self) -> SimTime {
         self.timestamp
     }
 
     pub fn cancel(&mut self) {
-        self.is_cancelled = true;
+        self.cancelled = true;
     }
 
-    pub fn is_cancelled(&self) -> bool {
-        self.is_cancelled
+    pub fn cancelled(&self) -> bool {
+        self.cancelled
     }
 }
 
@@ -52,30 +61,12 @@ impl IdGenerator {
 }
 
 pub enum EventType {
-    ApplicationStart(ApplicationId),
-    ApplicationStop(ApplicationId),
-    ToApplication(Entity, ApplicationId, ApplicationEventData),
-    ToSocket(Entity, SocketId, SocketEventData),
-    ToNode(Entity, NodeId, NodeEventData),
-    ToDevice(Entity, DeviceId, DeviceEventData),
-    ToChannel(Entity, ChannelId, ChannelEventData),
+    ToApplication(ApplicationId, ApplicationEventData),
+    ToSocket(SocketId, SocketEventData),
+    ToNode(NodeId, NodeEventData),
+    ToDevice(DeviceId, DeviceEventData),
+    ToChannel(ChannelId, ChannelEventData),
 }
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Entity {
-    Application(ApplicationId),
-    Socket(SocketId),
-    Node(NodeId),
-    Device(DeviceId),
-    Channel(ChannelId),
-    Sim,
-}
-
-pub enum ApplicationEventData {}
-
-pub enum SocketEventData {}
-
-pub enum NodeEventData {}
 
 pub enum DeviceEventData {}
 

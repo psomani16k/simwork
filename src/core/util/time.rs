@@ -94,6 +94,23 @@ impl SimTime {
     pub fn saturating_sub(self, duration: Duration) -> SimTime {
         SimTime(self.0.saturating_sub(duration.as_ps()))
     }
+
+    pub fn is_after(&self, ts: Self) -> bool {
+        *self > ts
+    }
+
+    pub fn is_after_or_at(&self, ts: Self) -> bool {
+        *self >= ts
+    }
+    
+    pub fn is_before(&self, ts: Self) -> bool {
+        *self < ts
+    }
+
+    pub fn is_before_or_at(&self, ts: Self) -> bool {
+        *self <= ts
+    }
+
 }
 
 impl Add<Duration> for SimTime {
