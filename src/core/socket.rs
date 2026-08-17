@@ -1,5 +1,5 @@
 use crate::core::{
-    address::Endpoint,
+    address::{Endpoint, Port},
     application::ApplicationId,
     event::socket_events::{ApplicationToSocket, NodeToSocket, SocketEvent, SocketOutput},
     node::NodeId,
@@ -11,11 +11,16 @@ pub struct Socket {
     id: SocketId,
     application: ApplicationId,
     node: NodeId,
+    port: Port,
 
     socket_impl: Box<dyn SocketImpl>,
 }
 
 impl Socket {
+    pub fn port(&self) -> Port {
+        self.port
+    }
+
     pub fn connected_application(&self) -> ApplicationId {
         self.application
     }
@@ -50,10 +55,8 @@ impl Socket {
         match data {
             ApplicationToSocket::Close => self.socket_impl.close(ctx),
             ApplicationToSocket::Connect(endpoint) => self.socket_impl.connect(ctx, endpoint),
-            ApplicationToSocket::ReceivePacket(packet) => {
-                self.socket_impl.receive_from_destination(ctx, packet)
-            }
-            ApplicationToSocket::Send(data) => self.socket_impl.send_to_destination(ctx, data),
+            ApplicationToSocket::ReceivePacket(packet) => self.socket_impl.on_receive(ctx, packet),
+            ApplicationToSocket::Send(data) => self.socket_impl.on_send(ctx, data),
         }
     }
 
@@ -72,18 +75,10 @@ pub trait SocketImpl {
     fn connect(&mut self, ctx: SocketCtx, endpoint: Endpoint) -> Vec<(Duration, SocketOutput)>;
 
     /// Called when application requests to send data to destination
-    fn send_to_destination(
-        &mut self,
-        ctx: SocketCtx,
-        data: Vec<u8>,
-    ) -> Vec<(Duration, SocketOutput)>;
+    fn on_send(&mut self, ctx: SocketCtx, data: Vec<u8>) -> Vec<(Duration, SocketOutput)>;
 
     /// Called when there is a packet coming from destination
-    fn receive_from_destination(
-        &mut self,
-        ctx: SocketCtx,
-        packet: Packet,
-    ) -> Vec<(Duration, SocketOutput)>;
+    fn on_receive(&mut self, ctx: SocketCtx, packet: Packet) -> Vec<(Duration, SocketOutput)>;
 
     /// Close socket
     fn close(&mut self, ctx: SocketCtx) -> Vec<(Duration, SocketOutput)>;

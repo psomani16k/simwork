@@ -36,11 +36,11 @@ pub enum IpAddress {
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub struct Endpoint {
     ip: IpAddress,
-    port: u16,
+    port: Port,
 }
 
 impl Endpoint {
-    pub fn new(ip: IpAddress, port: u16) -> Self {
+    pub fn new(ip: IpAddress, port: Port) -> Self {
         Endpoint { ip, port }
     }
 
@@ -48,7 +48,13 @@ impl Endpoint {
         self.ip
     }
 
-    pub fn port(&self) -> u16 {
+    pub fn port(&self) -> Port {
         self.port
     }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+pub enum Port {
+    Tcp(u16),
+    Udp(u16),
 }
