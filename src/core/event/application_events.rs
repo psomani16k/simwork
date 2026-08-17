@@ -1,24 +1,32 @@
-use crate::core::util::size::Size;
+use crate::core::{event::socket_events::ApplicationToSocket, util::size::Size};
 
-/// Events that an application can accept
-
-pub enum ApplicationEventData {
-    FromSelf(),
-    FromSim(ApplicationEventFromSim),
-    FromSocket(ApplicationEventFromSocket),
+/// Everything that can be delivered to an application, grouped by who sent it.
+pub enum ApplicationEvent {
+    FromSelf(ApplicationToSelf),
+    FromSim(SimToApplication),
+    FromSocket(SocketToApplication),
 }
 
-pub enum ApplicationEventFromSim {
+pub enum SimToApplication {
     Start,
     Stop,
 }
 
-pub enum ApplicationEventFromSocket {
+pub enum ApplicationToSelf {}
+
+pub enum SocketToApplication {
     ConnectionStatus(ConnectionStatus),
-    Writable { available: Size }, // a credit to spend, not a promise
-    Sent { accepted: Size },      // answers every Send, short or not
+    /// How much room is available in the socket buffer to for
+    /// new data to be sent.
+    Writable {
+        available: Size,
+    },
+    /// Answers every `ApplicationToSocket::Send`, short or not.
+    Sent {
+        accepted: Size,
+    },
     Data(Vec<u8>),
-    Error(SocketErr),
+    Error(SocketError),
 }
 
 pub enum ConnectionStatus {
@@ -26,7 +34,12 @@ pub enum ConnectionStatus {
     Disconnected,
 }
 
-pub enum SocketErr {
+pub enum SocketError {
     SendBufferOverflow { accepted_bytes: Size },
     FailedToConnect,
+}
+
+/// Everything an application can produce, grouped by who receives it.
+pub enum ApplicationOutput {
+    ToSocket(ApplicationToSocket),
 }

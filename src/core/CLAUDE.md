@@ -57,7 +57,7 @@ queue. It is also what makes processing delay expressible at all.
 ## The outbox, and where delay goes
 
 A context does not schedule the events it produces. It pushes them into an
-outbox — for the application layer, a `Vec<(SocketId, SocketEventData)>` lent by
+outbox — for the application layer, a `Vec<(SocketId, SocketEvent)>` lent by
 `Sim` and reused across dispatches. `Sim` drains it after the implementation
 returns, stamps each entry with an arrival time and enqueues it.
 
@@ -146,7 +146,7 @@ misrouted it.
 ## Where the layers stand
 
 - **Application** — done. `ApplicationImpl`, `ApplicationContext`, `Application`.
-- **Transport** — `SocketImpl` is still an empty trait. `SocketEventData` has its
+- **Transport** — `SocketImpl` is still an empty trait. `SocketEvent` has its
   down-calls from the application, its `Consumed` reply and its timers, but the
   inbound path from the network layer is still `Packet(Packet)` and is the next
   leak to close.

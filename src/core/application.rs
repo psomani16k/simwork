@@ -2,11 +2,10 @@ use crate::core::{
     event::{
         EventType,
         application_events::{
-            ApplicationEventData, ApplicationEventFromSim, ApplicationEventFromSocket,
-            ConnectionStatus, SocketErr,
+            ApplicationEvent, ApplicationOutput, ApplicationToSelf, ConnectionStatus,
+            SimToApplication, SocketError, SocketToApplication,
         },
-        entity::Entity,
-        socket_events::{SocketEventData, SocketEventFromApplication},
+        socket_events::{ApplicationToSocket, SocketEvent},
     },
     socket::SocketId,
     util::{duration::Duration, id::IdGenerator, size::Size, time::SimTime},
@@ -34,75 +33,81 @@ impl Application {
 
     pub fn handle_event(
         &mut self,
-        data: ApplicationEventData,
+        data: ApplicationEvent,
         now: SimTime,
     ) -> Vec<(SimTime, EventType)> {
         let event_data = match data {
-            ApplicationEventData::FromSim(event) => self.handle_event_from_sim(event, now),
-            ApplicationEventData::FromSocket(event) => self.handle_event_from_socket(event, now),
-            ApplicationEventData::FromSelf() => todo!(),
+            ApplicationEvent::FromSim(event) => self.handle_event_from_sim(event, now),
+            ApplicationEvent::FromSocket(event) => self.handle_event_from_socket(event, now),
+            ApplicationEvent::FromSelf(event) => self.handle_event_from_application(event, now),
         };
 
         let events = event_data
             .into_iter()
             .map(|(delay, data)| -> (SimTime, EventType) {
                 let ts = now + delay;
-                let event = EventType::ToSocket(
-                    self.connected_socket(),
-                    SocketEventData::FromApplication(data),
-                );
+                let event = match data {
+                    ApplicationOutput::ToSocket(socket_event) => EventType::ToSocket(
+                        self.connected_socket(),
+                        SocketEvent::FromApplication(socket_event),
+                    ),
+                };
                 (ts, event)
             })
             .collect();
         events
     }
 
+    fn handle_event_from_application(
+        &mut self,
+        data: ApplicationToSelf,
+        now: SimTime,
+    ) -> Vec<(Duration, ApplicationOutput)> {
+        let _ctx = self.application_ctx(now);
+        match data {}
+    }
+
     fn handle_event_from_sim(
         &mut self,
-        data: ApplicationEventFromSim,
+        data: SimToApplication,
         now: SimTime,
-    ) -> Vec<(Duration, SocketEventFromApplication)> {
+    ) -> Vec<(Duration, ApplicationOutput)> {
         let ctx = self.application_ctx(now);
         match data {
-            ApplicationEventFromSim::Start => self.application_impl.start(ctx),
-            ApplicationEventFromSim::Stop => self.application_impl.stop(ctx),
+            SimToApplication::Start => self.application_impl.start(ctx),
+            SimToApplication::Stop => self.application_impl.stop(ctx),
         }
     }
 
     fn handle_event_from_socket(
         &mut self,
-        data: ApplicationEventFromSocket,
+        data: SocketToApplication,
         now: SimTime,
-    ) -> Vec<(Duration, SocketEventFromApplication)> {
+    ) -> Vec<(Duration, ApplicationOutput)> {
         let ctx = self.application_ctx(now);
         match data {
-            ApplicationEventFromSocket::ConnectionStatus(status) => {
+            SocketToApplication::ConnectionStatus(status) => {
                 self.application_impl.connection_status_update(ctx, status)
             }
-            ApplicationEventFromSocket::Data(data) => self.application_impl.receive_data(ctx, data),
-            ApplicationEventFromSocket::Error(err) => self.application_impl.socket_error(ctx, err),
-            ApplicationEventFromSocket::Sent { accepted } => {
+            SocketToApplication::Data(data) => self.application_impl.receive_data(ctx, data),
+            SocketToApplication::Error(err) => self.application_impl.socket_error(ctx, err),
+            SocketToApplication::Sent { accepted } => {
                 self.application_impl.send_callback(ctx, accepted)
             }
-            ApplicationEventFromSocket::Writable { available } => {
+            SocketToApplication::Writable { available } => {
                 let mut data: Vec<u8> = vec![0u8; available.as_bytes() as usize];
                 let (delay, filled) = self.application_impl.pull_data(ctx, &mut data);
                 data.truncate(filled.as_bytes() as usize);
-                let event_data = SocketEventFromApplication::SendData(data);
+                let event_data = ApplicationOutput::ToSocket(ApplicationToSocket::Send(data));
                 vec![(delay, event_data)]
             }
         }
     }
 }
 
-pub enum EventsFromApplication {
-    ToSocket(SocketEventFromApplication),
-    ToApplication(ApplicationEventData)
-}
-
 pub trait ApplicationImpl {
     /// called when the application is started
-    fn start(&mut self, ctx: ApplicationCtx) -> Vec<(Duration, SocketEventFromApplication)>;
+    fn start(&mut self, ctx: ApplicationCtx) -> Vec<(Duration, ApplicationOutput)>;
 
     /// Socket layer requesting for more data if available
     fn pull_data(&mut self, ctx: ApplicationCtx, buf: &mut [u8]) -> (Duration, Size);
@@ -112,31 +117,31 @@ pub trait ApplicationImpl {
         &mut self,
         ctx: ApplicationCtx,
         sent: Size,
-    ) -> Vec<(Duration, SocketEventFromApplication)>;
+    ) -> Vec<(Duration, ApplicationOutput)>;
 
     /// Erros thrown by socket arrive here
     fn socket_error(
         &mut self,
         ctx: ApplicationCtx,
-        err: SocketErr,
-    ) -> Vec<(Duration, SocketEventFromApplication)>;
+        err: SocketError,
+    ) -> Vec<(Duration, ApplicationOutput)>;
 
     /// Called when there is an update from the socket regarding the connection status
     fn connection_status_update(
         &mut self,
         ctx: ApplicationCtx,
         status: ConnectionStatus,
-    ) -> Vec<(Duration, SocketEventFromApplication)>;
+    ) -> Vec<(Duration, ApplicationOutput)>;
 
     /// Called when socket has data to give to the application
     fn receive_data(
         &mut self,
         ctx: ApplicationCtx,
         data: Vec<u8>,
-    ) -> Vec<(Duration, SocketEventFromApplication)>;
+    ) -> Vec<(Duration, ApplicationOutput)>;
 
     /// called when the application is to be stopped
-    fn stop(&mut self, ctx: ApplicationCtx) -> Vec<(Duration, SocketEventFromApplication)>;
+    fn stop(&mut self, ctx: ApplicationCtx) -> Vec<(Duration, ApplicationOutput)>;
 }
 
 pub struct ApplicationCtx {

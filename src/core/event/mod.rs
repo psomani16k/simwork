@@ -1,4 +1,5 @@
 pub mod application_events;
+pub mod device_events;
 pub mod entity;
 pub mod node_events;
 pub mod socket_events;
@@ -8,8 +9,7 @@ use crate::core::{
     channel::ChannelId,
     device::DeviceId,
     event::{
-        application_events::ApplicationEventData, entity::Entity, node_events::NodeEventData,
-        socket_events::SocketEventData,
+        application_events::ApplicationEvent, node_events::NodeEvent, socket_events::SocketEvent,
     },
     node::NodeId,
     socket::SocketId,
@@ -61,13 +61,13 @@ impl IdGenerator {
 }
 
 pub enum EventType {
-    ToApplication(ApplicationId, ApplicationEventData),
-    ToSocket(SocketId, SocketEventData),
-    ToNode(NodeId, NodeEventData),
-    ToDevice(DeviceId, DeviceEventData),
-    ToChannel(ChannelId, ChannelEventData),
+    ToApplication(ApplicationId, ApplicationEvent),
+    ToSocket(SocketId, SocketEvent),
+    ToNode(NodeId, NodeEvent),
+    ToDevice(DeviceId, DeviceEvent),
+    ToChannel(ChannelId, ChannelEvent),
 }
 
-pub enum DeviceEventData {}
+pub enum DeviceEvent {}
 
-pub enum ChannelEventData {}
+pub enum ChannelEvent {}

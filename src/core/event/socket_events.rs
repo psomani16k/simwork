@@ -1,15 +1,30 @@
-use crate::core::{address::Endpoint, packet::Packet};
+use crate::core::{
+    address::Endpoint,
+    event::{application_events::SocketToApplication, node_events::SocketToNode},
+    packet::Packet,
+};
 
-pub enum SocketEventData {
-    FromApplication(SocketEventFromApplication),
-    FromNode(SocketEventFromNode),
+/// Everything that can be delivered to a socket, grouped by who sent it.
+pub enum SocketEvent {
+    FromSelf(SocketToSelf),
+    FromApplication(ApplicationToSocket),
+    FromNode(NodeToSocket),
 }
 
-pub enum SocketEventFromApplication {
+pub enum SocketToSelf {}
+
+pub enum ApplicationToSocket {
     Connect(Endpoint),
     Close,
-    SendData(Vec<u8>),
+    Send(Vec<u8>),
     ReceivePacket(Packet),
 }
 
-pub enum SocketEventFromNode {}
+pub enum NodeToSocket {}
+
+/// Everything a socket can produce, grouped by who receives it.
+pub enum SocketOutput {
+    ToSelf(SocketToSelf),
+    ToApplication(SocketToApplication),
+    ToNode(SocketToNode),
+}

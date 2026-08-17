@@ -102,7 +102,7 @@ impl SimTime {
     pub fn is_after_or_at(&self, ts: Self) -> bool {
         *self >= ts
     }
-    
+
     pub fn is_before(&self, ts: Self) -> bool {
         *self < ts
     }
@@ -110,7 +110,6 @@ impl SimTime {
     pub fn is_before_or_at(&self, ts: Self) -> bool {
         *self <= ts
     }
-
 }
 
 impl Add<Duration> for SimTime {
