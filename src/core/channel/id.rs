@@ -1,10 +1,4 @@
-use crate::core::{device::DeviceId, util::id::IdGenerator};
-
-pub struct Channel {
-    id: ChannelId,
-    head: DeviceId,
-    tail: DeviceId,
-}
+use crate::core::util::id::IdGenerator;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub struct ChannelId(u64);

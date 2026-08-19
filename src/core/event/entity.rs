@@ -1,6 +1,6 @@
 use crate::core::{
-    application::ApplicationId, channel::ChannelId, device::DeviceId, node::NodeId,
-    socket::SocketId,
+    application::id::ApplicationId, channel::id::ChannelId, device::id::DeviceId, node::id::NodeId,
+    socket::id::SocketId,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]

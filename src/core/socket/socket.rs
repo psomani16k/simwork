@@ -1,10 +1,10 @@
 use crate::core::{
-    address::{Endpoint, Port},
-    application::ApplicationId,
+    address::Port,
+    application::id::ApplicationId,
     event::socket_events::{ApplicationToSocket, NodeToSocket, SocketEvent, SocketOutput},
-    node::NodeId,
-    packet::Packet,
-    util::{duration::Duration, id::IdGenerator, time::SimTime},
+    node::id::NodeId,
+    socket::{ctx::SocketCtx, id::SocketId, interface::SocketImpl},
+    util::{duration::Duration, time::SimTime},
 };
 
 pub struct Socket {
@@ -31,6 +31,7 @@ impl Socket {
             id: self.id,
             application: self.application,
             now,
+            port: self.port(),
         }
     }
 
@@ -67,36 +68,5 @@ impl Socket {
     ) -> Vec<(Duration, SocketOutput)> {
         let ctx = self.socket_ctx(now);
         match data {}
-    }
-}
-
-pub trait SocketImpl {
-    /// Called when the application wants to initiate a connection
-    fn connect(&mut self, ctx: SocketCtx, endpoint: Endpoint) -> Vec<(Duration, SocketOutput)>;
-
-    /// Called when application requests to send data to destination
-    fn on_send(&mut self, ctx: SocketCtx, data: Vec<u8>) -> Vec<(Duration, SocketOutput)>;
-
-    /// Called when there is a packet coming from destination
-    fn on_receive(&mut self, ctx: SocketCtx, packet: Packet) -> Vec<(Duration, SocketOutput)>;
-
-    /// Close socket
-    fn close(&mut self, ctx: SocketCtx) -> Vec<(Duration, SocketOutput)>;
-}
-
-pub struct SocketCtx {
-    pub node: NodeId,
-    pub id: SocketId,
-    pub application: ApplicationId,
-    pub now: SimTime,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub struct SocketId(u64);
-
-impl IdGenerator {
-    pub fn new_socket_id(&mut self) -> SocketId {
-        let id = self.get_id();
-        SocketId(id)
     }
 }

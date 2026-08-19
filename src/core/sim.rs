@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
 use crate::core::{
-    application::{Application, ApplicationId},
-    channel::{Channel, ChannelId},
-    device::{Device, DeviceId},
+    application::{application::Application, id::ApplicationId},
+    channel::{channel::Channel, id::ChannelId},
+    device::{device::Device, id::DeviceId},
     event::{Event, EventId, EventType},
     event_queue::EventQueue,
-    node::{Node, NodeId},
-    socket::{Socket, SocketId},
+    node::{id::NodeId, node::Node},
+    socket::{id::SocketId, socket::Socket},
     util::{id::IdGenerator, time::SimTime},
 };
 
@@ -50,7 +50,7 @@ impl Sim {
 
     pub fn run(&mut self) {
         while let Some(event) = self.queue.pop_event() {
-            if event.cancelled() || self.now.is_after(event.timestamp()) {
+            if event.is_cancelled() || self.now.is_after(event.timestamp()) {
                 continue;
             }
             self.now = event.timestamp();

@@ -5,15 +5,9 @@ pub mod node_events;
 pub mod socket_events;
 
 use crate::core::{
-    application::ApplicationId,
-    channel::ChannelId,
-    device::DeviceId,
-    event::{
+    application::id::ApplicationId, channel::id::ChannelId, device::id::DeviceId, event::{
         application_events::ApplicationEvent, node_events::NodeEvent, socket_events::SocketEvent,
-    },
-    node::NodeId,
-    socket::SocketId,
-    util::{id::IdGenerator, time::SimTime},
+    }, node::id::NodeId, socket::id::SocketId, util::{id::IdGenerator, time::SimTime},
 };
 
 pub struct Event {
@@ -45,7 +39,7 @@ impl Event {
         self.cancelled = true;
     }
 
-    pub fn cancelled(&self) -> bool {
+    pub fn is_cancelled(&self) -> bool {
         self.cancelled
     }
 }

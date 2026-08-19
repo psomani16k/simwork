@@ -1,14 +1,15 @@
 use crate::core::{
+    application::{ctx::ApplicationCtx, id::ApplicationId, interface::ApplicationImpl},
     event::{
         EventType,
         application_events::{
-            ApplicationEvent, ApplicationOutput, ApplicationToSelf, ConnectionStatus,
-            SimToApplication, SocketError, SocketToApplication,
+            ApplicationEvent, ApplicationOutput, ApplicationToSelf, SimToApplication,
+            SocketToApplication,
         },
         socket_events::{ApplicationToSocket, SocketEvent},
     },
-    socket::SocketId,
-    util::{duration::Duration, id::IdGenerator, size::Size, time::SimTime},
+    socket::id::SocketId,
+    util::{duration::Duration, time::SimTime},
 };
 
 pub struct Application {
@@ -86,9 +87,9 @@ impl Application {
     ) -> Vec<(Duration, ApplicationOutput)> {
         let ctx = self.application_ctx(now);
         match data {
-            SocketToApplication::ConnectionStatus(status) => {
-                self.application_impl.on_connection_status_update(ctx, status)
-            }
+            SocketToApplication::ConnectionStatus(status) => self
+                .application_impl
+                .on_connection_status_update(ctx, status),
             SocketToApplication::Data(data) => self.application_impl.on_receive(ctx, data),
             SocketToApplication::Error(err) => self.application_impl.on_socket_error(ctx, err),
             SocketToApplication::Sent { accepted } => {
@@ -102,58 +103,5 @@ impl Application {
                 vec![(delay, event_data)]
             }
         }
-    }
-}
-
-pub trait ApplicationImpl {
-    /// called when the application is started
-    fn on_start(&mut self, ctx: ApplicationCtx) -> Vec<(Duration, ApplicationOutput)>;
-
-    /// Socket layer requesting for more data if available
-    fn on_sendable(&mut self, ctx: ApplicationCtx, buf: &mut [u8]) -> (Duration, Size);
-
-    /// Called to inform application of how many bytes were sent in the last send request
-    fn send_callback(
-        &mut self,
-        ctx: ApplicationCtx,
-        sent: Size,
-    ) -> Vec<(Duration, ApplicationOutput)>;
-
-    /// Erros thrown by socket arrive here
-    fn on_socket_error(
-        &mut self,
-        ctx: ApplicationCtx,
-        err: SocketError,
-    ) -> Vec<(Duration, ApplicationOutput)>;
-
-    /// Called when there is an update from the socket regarding the connection status
-    fn on_connection_status_update(
-        &mut self,
-        ctx: ApplicationCtx,
-        status: ConnectionStatus,
-    ) -> Vec<(Duration, ApplicationOutput)>;
-
-    /// Called when socket has data to give to the application
-    fn on_receive(
-        &mut self,
-        ctx: ApplicationCtx,
-        data: Vec<u8>,
-    ) -> Vec<(Duration, ApplicationOutput)>;
-
-    /// called when the application is to be stopped
-    fn on_stop(&mut self, ctx: ApplicationCtx) -> Vec<(Duration, ApplicationOutput)>;
-}
-
-pub struct ApplicationCtx {
-    pub now: SimTime,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
-pub struct ApplicationId(u64);
-
-impl IdGenerator {
-    pub fn new_application_id(&mut self) -> ApplicationId {
-        let id = self.get_id();
-        ApplicationId(id)
     }
 }
