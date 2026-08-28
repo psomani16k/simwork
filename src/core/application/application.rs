@@ -8,6 +8,7 @@ use crate::core::{
         },
         socket_events::{ApplicationToSocket, SocketEvent},
     },
+    sim::ctx::SimCtx,
     socket::id::SocketId,
     util::{duration::Duration, time::SimTime},
 };
@@ -34,19 +35,19 @@ impl Application {
 
     pub fn handle_event(
         &mut self,
+        ctx: &SimCtx,
         data: ApplicationEvent,
-        now: SimTime,
     ) -> Vec<(SimTime, EventType)> {
         let event_data = match data {
-            ApplicationEvent::FromSim(event) => self.handle_event_from_sim(event, now),
-            ApplicationEvent::FromSocket(event) => self.handle_event_from_socket(event, now),
-            ApplicationEvent::FromSelf(event) => self.handle_event_from_application(event, now),
+            ApplicationEvent::FromSim(event) => self.handle_event_from_sim(ctx, event),
+            ApplicationEvent::FromSocket(event) => self.handle_event_from_socket(ctx, event),
+            ApplicationEvent::FromSelf(event) => self.handle_event_from_application(ctx, event),
         };
 
         let events = event_data
             .into_iter()
             .map(|(delay, data)| -> (SimTime, EventType) {
-                let ts = now + delay;
+                let ts = ctx.now + delay;
                 let event = match data {
                     ApplicationOutput::ToSocket(socket_event) => EventType::ToSocket(
                         self.connected_socket(),
@@ -61,19 +62,17 @@ impl Application {
 
     fn handle_event_from_application(
         &mut self,
+        ctx: &SimCtx,
         data: ApplicationToSelf,
-        now: SimTime,
     ) -> Vec<(Duration, ApplicationOutput)> {
-        let _ctx = self.application_ctx(now);
         match data {}
     }
 
     fn handle_event_from_sim(
         &mut self,
+        ctx: &SimCtx,
         data: SimToApplication,
-        now: SimTime,
     ) -> Vec<(Duration, ApplicationOutput)> {
-        let ctx = self.application_ctx(now);
         match data {
             SimToApplication::Start => self.application_impl.on_start(ctx),
             SimToApplication::Stop => self.application_impl.on_stop(ctx),
@@ -82,10 +81,9 @@ impl Application {
 
     fn handle_event_from_socket(
         &mut self,
+        ctx: &SimCtx,
         data: SocketToApplication,
-        now: SimTime,
     ) -> Vec<(Duration, ApplicationOutput)> {
-        let ctx = self.application_ctx(now);
         match data {
             SocketToApplication::ConnectionStatus(status) => self
                 .application_impl

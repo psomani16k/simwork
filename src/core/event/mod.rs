@@ -1,13 +1,21 @@
 pub mod application_events;
+pub mod channel_events;
 pub mod device_events;
 pub mod entity;
 pub mod node_events;
 pub mod socket_events;
 
 use crate::core::{
-    application::id::ApplicationId, channel::id::ChannelId, device::id::DeviceId, event::{
-        application_events::ApplicationEvent, node_events::NodeEvent, socket_events::SocketEvent,
-    }, node::id::NodeId, socket::id::SocketId, util::{id::IdGenerator, time::SimTime},
+    application::id::ApplicationId,
+    channel::id::ChannelId,
+    device::id::DeviceId,
+    event::{
+        application_events::ApplicationEvent, channel_events::ChannelEvent,
+        device_events::DeviceEvent, node_events::NodeEvent, socket_events::SocketEvent,
+    },
+    node::id::NodeId,
+    socket::id::SocketId,
+    util::{id::IdGenerator, time::SimTime},
 };
 
 pub struct Event {
@@ -61,7 +69,3 @@ pub enum EventType {
     ToDevice(DeviceId, DeviceEvent),
     ToChannel(ChannelId, ChannelEvent),
 }
-
-pub enum DeviceEvent {}
-
-pub enum ChannelEvent {}

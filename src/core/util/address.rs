@@ -55,6 +55,6 @@ impl Endpoint {
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub enum Port {
-    Tcp(u16),
-    Udp(u16),
+    TCP(u16),
+    UDP(u16),
 }

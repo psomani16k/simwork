@@ -1,7 +1,13 @@
 use crate::core::{
     application::id::ApplicationId,
-    event::socket_events::{ApplicationToSocket, NodeToSocket, SocketEvent, SocketOutput},
+    event::{
+        EventType,
+        application_events::ApplicationEvent,
+        node_events::NodeEvent,
+        socket_events::{ApplicationToSocket, NodeToSocket, SocketEvent, SocketOutput},
+    },
     node::id::NodeId,
+    sim::ctx::SimCtx,
     socket::{ctx::SocketCtx, id::SocketId, interface::SocketImpl},
     util::{address::Port, duration::Duration, time::SimTime},
 };
@@ -34,24 +40,39 @@ impl Socket {
         }
     }
 
-    pub fn handle_event(
-        &mut self,
-        event: SocketEvent,
-        now: SimTime,
-    ) -> Vec<(Duration, SocketOutput)> {
-        let ctx = self.socket_ctx(now);
-        match event {
-            SocketEvent::FromApplication(events) => self.handle_event_from_application(events, now),
-            SocketEvent::FromNode(events) => self.handle_event_from_node(events, now),
-        }
+    pub fn handle_event(&mut self, ctx: &SimCtx, event: SocketEvent) -> Vec<(SimTime, EventType)> {
+        let event_data = match event {
+            SocketEvent::FromApplication(events) => self.handle_event_from_application(ctx, events),
+            SocketEvent::FromNode(events) => self.handle_event_from_node(ctx, events),
+        };
+
+        let events = event_data
+            .into_iter()
+            .map(|(delay, data)| -> (SimTime, EventType) {
+                let ts = ctx.now + delay;
+                let event = match data {
+                    SocketOutput::ToSelf(to_self) => {
+                        EventType::ToSocket(self.id, SocketEvent::FromSelf(to_self))
+                    }
+                    SocketOutput::ToApplication(socket_to_application) => EventType::ToApplication(
+                        self.application,
+                        ApplicationEvent::FromSocket(socket_to_application),
+                    ),
+                    SocketOutput::ToNode(socket_to_node) => {
+                        EventType::ToNode(self.node, NodeEvent::FromSocket(socket_to_node))
+                    }
+                };
+                (ts, event)
+            })
+            .collect();
+        events
     }
 
     fn handle_event_from_application(
         &mut self,
+        ctx: &SimCtx,
         data: ApplicationToSocket,
-        now: SimTime,
     ) -> Vec<(Duration, SocketOutput)> {
-        let ctx = self.socket_ctx(now);
         match data {
             ApplicationToSocket::Close => self.socket_impl.close(ctx),
             ApplicationToSocket::Connect(endpoint) => self.socket_impl.connect(ctx, endpoint),
@@ -62,10 +83,9 @@ impl Socket {
 
     fn handle_event_from_node(
         &mut self,
+        ctx: &SimCtx,
         data: NodeToSocket,
-        now: SimTime,
     ) -> Vec<(Duration, SocketOutput)> {
-        let ctx = self.socket_ctx(now);
         match data {
             NodeToSocket::Data(packet) => self.socket_impl.on_receive(ctx, packet),
         }

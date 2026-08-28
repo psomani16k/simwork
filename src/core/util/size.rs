@@ -309,6 +309,15 @@ impl Div<Size> for Size {
     }
 }
 
+impl Div<Bandwidth> for Size {
+    type Output = Duration;
+
+    fn div(self, rhs: Bandwidth) -> Self::Output {
+        let dur = (self.0 as u128 * 1_000_000_000_000) / rhs.as_bits_per_sec() as u128;
+        Duration::ps(dur)
+    }
+}
+
 impl Sum for Size {
     fn sum<I: Iterator<Item = Size>>(iter: I) -> Size {
         iter.fold(Size::ZERO, |acc, size| acc + size)
@@ -595,5 +604,5 @@ mod tests {
 }
 
 pub trait SizeOf {
-    fn size_in_bytes(&self) -> Size;
+    fn size(&self) -> Size;
 }

@@ -1,5 +1,8 @@
 use crate::core::{
-    event::{device_events::NodeToDevice, socket_events::NodeToSocket}, util::{address::IpAddress, packet::Packet},
+    device::id::DeviceId,
+    event::{device_events::NodeToDevice, socket_events::NodeToSocket},
+    socket::id::SocketId,
+    util::{address::IpAddress, packet::Packet},
 };
 
 pub enum NodeEvent {

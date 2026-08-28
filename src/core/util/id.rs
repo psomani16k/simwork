@@ -1,4 +1,4 @@
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct IdGenerator(u64);
 
 impl IdGenerator {

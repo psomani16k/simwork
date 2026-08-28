@@ -3,6 +3,7 @@ use std::iter::Sum;
 use std::ops::{Add, AddAssign, Div, Mul, Sub, SubAssign};
 
 use crate::core::util::duration::Duration;
+use crate::core::util::size::Size;
 
 /// Carries bits/sec
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default, Hash)]
@@ -310,6 +311,14 @@ impl Mul<Bandwidth> for u64 {
 
     fn mul(self, bandwidth: Bandwidth) -> Bandwidth {
         Bandwidth(self * bandwidth.0)
+    }
+}
+
+impl Mul<Duration> for Bandwidth {
+    type Output = Size;
+
+    fn mul(self, rhs: Duration) -> Self::Output {
+        Size::from_bits(self.0 * rhs.as_ps() as u64)
     }
 }
 
