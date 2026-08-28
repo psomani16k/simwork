@@ -1,7 +1,6 @@
 use crate::core::{
-    address::Endpoint,
     event::{application_events::SocketToApplication, node_events::SocketToNode},
-    packet::Packet,
+    util::{address::Endpoint, packet::Packet},
 };
 
 /// Everything that can be delivered to a socket, grouped by who sent it.
@@ -20,7 +19,9 @@ pub enum ApplicationToSocket {
     ReceivePacket(Packet),
 }
 
-pub enum NodeToSocket {}
+pub enum NodeToSocket {
+    Data(Packet),
+}
 
 /// Everything a socket can produce, grouped by who receives it.
 pub enum SocketOutput {

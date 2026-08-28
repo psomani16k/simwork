@@ -21,16 +21,23 @@ impl Packet {
         (self.header, self.data)
     }
 
-    pub fn get_data(self) -> PacketData {
-        self.data
-    }
-
     pub fn get_id(&self) -> PacketId {
         self.id
     }
 
-    pub fn peek(&self) -> PacketData {
-        self.data.clone()
+    pub fn peek_data(&self) -> &PacketData {
+        &self.data
+    }
+
+    pub fn peek_header(&self) -> &Header {
+        &self.header
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut header = self.header.to_bytes();
+        let mut data = self.data.to_bytes();
+        header.append(&mut data);
+        return header;
     }
 }
 
@@ -51,6 +58,18 @@ pub enum Header {
     IPv6(Ipv6Header),
 }
 
+impl Header {
+    pub fn to_bytes(&self) -> Vec<u8> {
+        match self {
+            Header::RawData => vec![],
+            Header::TCP(tcp_header) => tcp_header.to_bytes().to_vec(),
+            Header::UDP(udp_header) => udp_header.to_bytes().to_vec(),
+            Header::IPv4(ipv4_header) => ipv4_header.to_bytes().to_vec(),
+            Header::IPv6(ipv6_header) => ipv6_header.to_bytes().to_vec(),
+        }
+    }
+}
+
 impl SizeOf for Header {
     fn size_in_bytes(&self) -> Size {
         match self {
@@ -67,6 +86,15 @@ impl SizeOf for Header {
 pub enum PacketData {
     Data(Vec<u8>),
     Packet(Box<Packet>),
+}
+
+impl PacketData {
+    pub fn to_bytes(&self) -> Vec<u8> {
+        match self {
+            PacketData::Data(items) => items.clone(),
+            PacketData::Packet(packet) => packet.to_bytes(),
+        }
+    }
 }
 
 impl SizeOf for PacketData {

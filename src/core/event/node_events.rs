@@ -1,4 +1,6 @@
-use crate::core::event::{device_events::NodeToDevice, socket_events::NodeToSocket};
+use crate::core::{
+    event::{device_events::NodeToDevice, socket_events::NodeToSocket}, util::{address::IpAddress, packet::Packet},
+};
 
 pub enum NodeEvent {
     FromSelf(NodeToSelf),
@@ -8,9 +10,13 @@ pub enum NodeEvent {
 
 pub enum NodeToSelf {}
 
-pub enum SocketToNode {}
+pub enum SocketToNode {
+    Send(Packet, IpAddress),
+}
 
-pub enum DeviceToNode {}
+pub enum DeviceToNode {
+    Data(Packet),
+}
 
 pub enum NodeOutput {
     ToSelf(NodeToSelf),

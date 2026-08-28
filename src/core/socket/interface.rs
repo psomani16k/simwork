@@ -1,6 +1,7 @@
 use crate::core::{
-    address::Endpoint, event::socket_events::SocketOutput, packet::Packet, socket::ctx::SocketCtx,
-    util::duration::Duration,
+    event::socket_events::SocketOutput,
+    socket::ctx::SocketCtx,
+    util::{address::Endpoint, duration::Duration, packet::Packet},
 };
 
 pub trait SocketImpl {

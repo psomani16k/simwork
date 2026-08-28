@@ -1,11 +1,8 @@
-pub mod address;
 pub mod application;
 pub mod channel;
 pub mod device;
 pub mod event;
-pub mod event_queue;
 pub mod node;
-pub mod packet;
 pub mod sim;
 pub mod socket;
 pub mod util;

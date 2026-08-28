@@ -1,6 +1,8 @@
 use crate::core::{
-    address::Port, application::id::ApplicationId, node::id::NodeId, socket::id::SocketId,
-    util::time::SimTime,
+    application::id::ApplicationId,
+    node::id::NodeId,
+    socket::id::SocketId,
+    util::{address::Port, time::SimTime},
 };
 
 pub struct SocketCtx {

@@ -1,8 +1,8 @@
 use crate::core::{
-    address::IpAddress,
     channel::id::ChannelId,
     device::{id::DeviceId, interface::DeviceImpl},
     node::id::NodeId,
+    util::address::IpAddress,
 };
 
 pub struct Device {

@@ -1,10 +1,9 @@
 use crate::core::{
-    address::Port,
     application::id::ApplicationId,
     event::socket_events::{ApplicationToSocket, NodeToSocket, SocketEvent, SocketOutput},
     node::id::NodeId,
     socket::{ctx::SocketCtx, id::SocketId, interface::SocketImpl},
-    util::{duration::Duration, time::SimTime},
+    util::{address::Port, duration::Duration, time::SimTime},
 };
 
 pub struct Socket {
@@ -37,11 +36,11 @@ impl Socket {
 
     pub fn handle_event(
         &mut self,
-        data: SocketEvent,
+        event: SocketEvent,
         now: SimTime,
     ) -> Vec<(Duration, SocketOutput)> {
         let ctx = self.socket_ctx(now);
-        match data {
+        match event {
             SocketEvent::FromApplication(events) => self.handle_event_from_application(events, now),
             SocketEvent::FromNode(events) => self.handle_event_from_node(events, now),
         }
@@ -67,6 +66,8 @@ impl Socket {
         now: SimTime,
     ) -> Vec<(Duration, SocketOutput)> {
         let ctx = self.socket_ctx(now);
-        match data {}
+        match data {
+            NodeToSocket::Data(packet) => self.socket_impl.on_receive(ctx, packet),
+        }
     }
 }

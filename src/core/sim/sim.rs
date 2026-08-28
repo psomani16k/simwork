@@ -5,10 +5,9 @@ use crate::core::{
     channel::{channel::Channel, id::ChannelId},
     device::{device::Device, id::DeviceId},
     event::{Event, EventId, EventType},
-    event_queue::EventQueue,
     node::{id::NodeId, node::Node},
     socket::{id::SocketId, socket::Socket},
-    util::{id::IdGenerator, time::SimTime},
+    util::{event_queue::EventQueue, id::IdGenerator, time::SimTime},
 };
 
 #[derive(Default)]
