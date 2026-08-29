@@ -1,1 +1,1 @@
-pub mod p2p_duplex;
+pub mod p2p;
