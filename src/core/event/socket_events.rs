@@ -2,7 +2,7 @@ use crate::core::{
     event::{application_events::SocketToApplication, node_events::SocketToNode},
     util::{
         address::{Endpoint, Port},
-        packet::{Header, Packet},
+        packet::{Packet, header::Header},
     },
 };
 
@@ -30,14 +30,8 @@ impl NodeToSocket {
     pub fn destination_port(&self) -> Option<Port> {
         match self {
             NodeToSocket::Data(packet) => match packet.peek_header() {
-                Header::TCP(tcp_header) => {
-                    let port = tcp_header.destination_port;
-                    Some(Port::TCP(port))
-                }
-                Header::UDP(udp_header) => {
-                    let port = udp_header.destination_port;
-                    Some(Port::UDP(port))
-                }
+                Header::TCP(tcp_header) => Some(tcp_header.destination_port()),
+                Header::UDP(udp_header) => Some(udp_header.destination_port()),
                 _ => None,
             },
         }
