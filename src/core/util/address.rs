@@ -58,3 +58,16 @@ pub enum Port {
     TCP(u16),
     UDP(u16),
 }
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+pub struct MacAddress([u8; 6]);
+
+impl MacAddress {
+    pub fn new(octets: [u8; 6]) -> Self {
+        Self(octets)
+    }
+
+    pub fn octets(&self) -> [u8; 6] {
+        self.0
+    }
+}

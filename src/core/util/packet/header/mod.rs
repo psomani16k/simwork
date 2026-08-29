@@ -1,3 +1,4 @@
+pub mod ethernet;
 pub mod ipv4;
 pub mod ipv6;
 pub mod tcp;
@@ -6,7 +7,10 @@ pub mod udp;
 use std::ops::{Index, IndexMut};
 
 use crate::core::util::{
-    packet::header::{ipv4::Ipv4Header, ipv6::Ipv6Header, tcp::TcpHeader, udp::UdpHeader},
+    packet::header::{
+        ethernet::EthernetHeader, ipv4::Ipv4Header, ipv6::Ipv6Header, tcp::TcpHeader,
+        udp::UdpHeader,
+    },
     size::{Size, SizeOf},
 };
 
@@ -17,6 +21,7 @@ pub enum Header {
     UDP(UdpHeader),
     IPv4(Ipv4Header),
     IPv6(Ipv6Header),
+    Ethernet(EthernetHeader),
 }
 
 impl Into<Vec<u8>> for Header {
@@ -27,6 +32,7 @@ impl Into<Vec<u8>> for Header {
             Header::UDP(udp_header) => udp_header.into(),
             Header::IPv4(ipv4_header) => ipv4_header.into(),
             Header::IPv6(ipv6_header) => ipv6_header.into(),
+            Header::Ethernet(ethernet_header) => ethernet_header.into(),
         }
     }
 }
@@ -39,6 +45,7 @@ impl SizeOf for Header {
             Header::UDP(udp_header) => udp_header.size(),
             Header::IPv4(ipv4_header) => ipv4_header.size(),
             Header::IPv6(ipv6_header) => ipv6_header.size(),
+            Header::Ethernet(ethernet_header) => ethernet_header.size(),
         }
     }
 }
@@ -53,6 +60,7 @@ impl Index<usize> for Header {
             Header::UDP(udp_header) => udp_header.index(index),
             Header::IPv4(ipv4_header) => ipv4_header.index(index),
             Header::IPv6(ipv6_header) => ipv6_header.index(index),
+            Header::Ethernet(ethernet_header) => ethernet_header.index(index),
         }
     }
 }
@@ -65,6 +73,7 @@ impl IndexMut<usize> for Header {
             Header::UDP(udp_header) => udp_header.index_mut(index),
             Header::IPv4(ipv4_header) => ipv4_header.index_mut(index),
             Header::IPv6(ipv6_header) => ipv6_header.index_mut(index),
+            Header::Ethernet(ethernet_header) => ethernet_header.index_mut(index),
         }
     }
 }

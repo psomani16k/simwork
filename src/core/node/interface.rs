@@ -9,7 +9,7 @@ pub trait NodeImpl {
         &mut self,
         ctx: &SimCtx,
         packet: Packet,
-        dst_ip: IpAddress,
+        dest_ip: IpAddress,
     ) -> Vec<(Duration, NodeOutput)>;
 
     fn on_packet_from_device(

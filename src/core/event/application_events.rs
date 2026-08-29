@@ -42,4 +42,5 @@ pub enum SocketError {
 /// Everything an application can produce, grouped by who receives it.
 pub enum ApplicationOutput {
     ToSocket(ApplicationToSocket),
+    ToSelf(ApplicationToSelf),
 }
