@@ -90,7 +90,7 @@ impl Device {
         };
         match event {
             ChannelToDevice::Data(packet) => self.device_impl.on_packet_from_channel(&ctx, packet),
-            ChannelToDevice::ReadyToTransmit => todo!(),
+            ChannelToDevice::ReadyToTransmit => self.device_impl.on_channel_free(&ctx),
             ChannelToDevice::ChannelBusy(returned_packet) => {
                 self.device_impl.on_channel_busy(&ctx, returned_packet)
             }

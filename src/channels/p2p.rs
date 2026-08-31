@@ -14,7 +14,7 @@ pub struct P2PDuplexChannel {
 
     inter_frame_delay: Duration,
     delay: Duration,
-    band_width: Bandwidth,
+    bandwidth: Bandwidth,
 }
 
 impl ChannelImpl for P2PDuplexChannel {
@@ -29,7 +29,7 @@ impl ChannelImpl for P2PDuplexChannel {
         }
 
         let packet_size = packet.size();
-        let serialization_delay = packet_size / self.band_width;
+        let serialization_delay = packet_size / self.bandwidth;
         let busy_duration = serialization_delay + self.inter_frame_delay;
         let total_delay = self.delay + serialization_delay;
         let mut events = Vec::new();
@@ -70,7 +70,7 @@ pub struct P2PHalfDuplexChannel {
 
     inter_frame_delay: Duration,
     delay: Duration,
-    band_width: Bandwidth,
+    bandwidth: Bandwidth,
 }
 
 impl ChannelImpl for P2PHalfDuplexChannel {
@@ -85,7 +85,7 @@ impl ChannelImpl for P2PHalfDuplexChannel {
         }
 
         let packet_size = packet.size();
-        let serialization_delay = packet_size / self.band_width;
+        let serialization_delay = packet_size / self.bandwidth;
         let busy_duration = serialization_delay + self.inter_frame_delay;
         let total_delay = self.delay + serialization_delay;
         let mut events = Vec::new();
@@ -127,7 +127,7 @@ pub struct P2PSimplexChannel {
 
     inter_frame_delay: Duration,
     delay: Duration,
-    band_width: Bandwidth,
+    bandwidth: Bandwidth,
 }
 
 impl ChannelImpl for P2PSimplexChannel {
@@ -149,7 +149,7 @@ impl ChannelImpl for P2PSimplexChannel {
             return events;
         }
         let packet_size = packet.size();
-        let serialization_delay = packet_size / self.band_width;
+        let serialization_delay = packet_size / self.bandwidth;
         let busy_duration = serialization_delay + self.inter_frame_delay;
         let total_delay = self.delay + serialization_delay;
         self.channel_busy_till = ctx.now + busy_duration;
