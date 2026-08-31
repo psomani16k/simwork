@@ -26,18 +26,6 @@ pub enum NodeToSocket {
     Data(Packet),
 }
 
-impl NodeToSocket {
-    pub fn destination_port(&self) -> Option<Port> {
-        match self {
-            NodeToSocket::Data(packet) => match packet.peek_header() {
-                Header::TCP(tcp_header) => Some(tcp_header.destination_port()),
-                Header::UDP(udp_header) => Some(udp_header.destination_port()),
-                _ => None,
-            },
-        }
-    }
-}
-
 /// Everything a socket can produce, grouped by who receives it.
 pub enum SocketOutput {
     ToSelf(SocketToSelf),

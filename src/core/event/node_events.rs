@@ -1,8 +1,9 @@
 use crate::core::{
-    device::id::DeviceId,
     event::{device_events::NodeToDevice, socket_events::NodeToSocket},
-    socket::id::SocketId,
-    util::{address::IpAddress, packet::Packet},
+    util::{
+        address::{IpAddress, MacAddress, Port},
+        packet::Packet,
+    },
 };
 
 pub enum NodeEvent {
@@ -23,6 +24,9 @@ pub enum DeviceToNode {
 
 pub enum NodeOutput {
     ToSelf(NodeToSelf),
-    ToSocket(NodeToSocket),
-    ToDevice(NodeToDevice),
+    ToSocket(NodeToSocket, Port),
+    ToDevice(
+        NodeToDevice,
+        MacAddress, // mac of device this event addresses
+    ),
 }

@@ -12,7 +12,7 @@ use crate::core::{
     sim::ctx::SimCtx,
     socket::id::SocketId,
     util::{
-        address::{IpAddress, Port},
+        address::{IpAddress, MacAddress, Port},
         duration::Duration,
         time::SimTime,
     },
@@ -21,7 +21,7 @@ use crate::core::{
 pub struct Node {
     id: NodeId,
     sockets: HashMap<Port, SocketId>,
-    devices: HashMap<IpAddress, DeviceId>,
+    devices: HashMap<MacAddress, DeviceId>,
 
     node_impl: Box<dyn NodeImpl>,
 }
@@ -45,14 +45,12 @@ impl Node {
                     NodeOutput::ToSelf(node_to_self) => {
                         EventType::ToNode(self.id, NodeEvent::FromSelf(node_to_self))
                     }
-                    NodeOutput::ToSocket(node_to_socket) => {
-                        let port = node_to_socket.destination_port()?;
+                    NodeOutput::ToSocket(node_to_socket, port) => {
                         let socket_id = *self.sockets.get(&port)?;
                         EventType::ToSocket(socket_id, SocketEvent::FromNode(node_to_socket))
                     }
-                    NodeOutput::ToDevice(node_to_device) => {
-                        let src_addr = node_to_device.source_ip_address()?;
-                        let device_id = *self.devices.get(&src_addr)?;
+                    NodeOutput::ToDevice(node_to_device, mac) => {
+                        let device_id = *self.devices.get(&mac)?;
                         EventType::ToDevice(device_id, DeviceEvent::FromNode(node_to_device))
                     }
                 };

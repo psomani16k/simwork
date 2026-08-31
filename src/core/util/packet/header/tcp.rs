@@ -24,6 +24,7 @@ use std::ops::{Index, IndexMut};
 
 use crate::core::util::{
     address::Port,
+    packet::{Packet, Wrap, data::PacketData, header::Header, id::PacketId, trailer::Trailer},
     size::{Size, SizeOf},
 };
 
@@ -95,6 +96,17 @@ impl Index<usize> for TcpHeader {
 impl SizeOf for TcpHeader {
     fn size(&self) -> Size {
         Size::from_bytes(20) + self.options.size()
+    }
+}
+
+impl Wrap<TcpHeader> for Packet {
+    fn wrap(self, header: TcpHeader, id: PacketId) -> Self {
+        Self {
+            header: Header::TCP(header),
+            data: PacketData::Packet(Box::new(self)),
+            trailer: Trailer::None,
+            id,
+        }
     }
 }
 

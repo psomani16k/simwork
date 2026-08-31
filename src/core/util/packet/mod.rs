@@ -6,15 +6,7 @@ pub mod trailer;
 use std::ops::{Index, IndexMut};
 
 use crate::core::util::{
-    packet::{
-        data::PacketData,
-        header::{
-            Header, ethernet::EthernetHeader, ipv4::Ipv4Header, ipv6::Ipv6Header, tcp::TcpHeader,
-            udp::UdpHeader,
-        },
-        id::PacketId,
-        trailer::Trailer,
-    },
+    packet::{data::PacketData, header::Header, id::PacketId, trailer::Trailer},
     size::{Size, SizeOf},
 };
 
@@ -32,51 +24,6 @@ impl Packet {
             header: Header::RawData,
             data: PacketData::Data(data),
             trailer: Trailer::None,
-            id,
-        }
-    }
-
-    pub fn wrap_tcp(self, header: TcpHeader, id: PacketId) -> Self {
-        Self {
-            header: Header::TCP(header),
-            data: PacketData::Packet(Box::new(self)),
-            trailer: Trailer::None,
-            id,
-        }
-    }
-
-    pub fn wrap_udp(self, header: UdpHeader, id: PacketId) -> Self {
-        Self {
-            header: Header::UDP(header),
-            data: PacketData::Packet(Box::new(self)),
-            trailer: Trailer::None,
-            id,
-        }
-    }
-
-    pub fn wrap_ipv4(self, header: Ipv4Header, id: PacketId) -> Self {
-        Self {
-            header: Header::IPv4(header),
-            data: PacketData::Packet(Box::new(self)),
-            trailer: Trailer::None,
-            id,
-        }
-    }
-
-    pub fn wrap_ipv6(self, header: Ipv6Header, id: PacketId) -> Self {
-        Self {
-            header: Header::IPv6(header),
-            data: PacketData::Packet(Box::new(self)),
-            trailer: Trailer::None,
-            id,
-        }
-    }
-
-    pub fn wrap_ethernet(self, header: EthernetHeader, fcs: [u8; 4], id: PacketId) -> Self {
-        Self {
-            header: Header::Ethernet(header),
-            data: PacketData::Packet(Box::new(self)),
-            trailer: Trailer::EthernetFcs(fcs),
             id,
         }
     }
@@ -166,4 +113,51 @@ impl IndexMut<usize> for Packet {
             self.size().as_bytes()
         );
     }
+}
+
+pub struct PacketBytes<'a> {
+    packet: &'a Packet,
+    pos: usize,
+    len: usize,
+}
+
+impl<'a> Iterator for PacketBytes<'a> {
+    type Item = u8;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.pos >= self.len {
+            return None;
+        }
+        let byte = self.packet[self.pos];
+        self.pos += 1;
+        Some(byte)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.len - self.pos;
+        (remaining, Some(remaining))
+    }
+}
+
+impl<'a> IntoIterator for &'a Packet {
+    type Item = u8;
+    type IntoIter = PacketBytes<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        PacketBytes {
+            packet: self,
+            pos: 0,
+            len: self.size().as_bytes() as usize,
+        }
+    }
+}
+
+impl Packet {
+    pub fn bytes(&self) -> PacketBytes<'_> {
+        self.into_iter()
+    }
+}
+
+pub trait Wrap<T> {
+    fn wrap(self, header: T, id: PacketId) -> Self;
 }

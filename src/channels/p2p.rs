@@ -44,14 +44,14 @@ impl ChannelImpl for P2PDuplexChannel {
         } else {
             events.push((
                 Duration::ZERO,
-                ChannelOutput::ToDevice(source, ChannelToDevice::ChannelBusy),
+                ChannelOutput::ToDevice(source, ChannelToDevice::ChannelBusy(packet)),
             ));
             return events;
         }
 
         events.push((
             busy_duration,
-            ChannelOutput::ToDevice(source, ChannelToDevice::TransmissionComplete),
+            ChannelOutput::ToDevice(source, ChannelToDevice::ReadyToTransmit),
         ));
         events.push((
             total_delay,
@@ -102,14 +102,14 @@ impl ChannelImpl for P2PHalfDuplexChannel {
         } else {
             events.push((
                 Duration::ZERO,
-                ChannelOutput::ToDevice(source, ChannelToDevice::ChannelBusy),
+                ChannelOutput::ToDevice(source, ChannelToDevice::ChannelBusy(packet)),
             ));
             return events;
         }
 
         events.push((
             busy_duration,
-            ChannelOutput::ToDevice(source, ChannelToDevice::TransmissionComplete),
+            ChannelOutput::ToDevice(source, ChannelToDevice::ReadyToTransmit),
         ));
         events.push((
             total_delay,
@@ -144,7 +144,7 @@ impl ChannelImpl for P2PSimplexChannel {
         if self.channel_busy_till > ctx.now {
             events.push((
                 Duration::ZERO,
-                ChannelOutput::ToDevice(source, ChannelToDevice::ChannelBusy),
+                ChannelOutput::ToDevice(source, ChannelToDevice::ChannelBusy(packet)),
             ));
             return events;
         }
@@ -159,7 +159,7 @@ impl ChannelImpl for P2PSimplexChannel {
         ));
         events.push((
             busy_duration,
-            ChannelOutput::ToDevice(self.head, ChannelToDevice::TransmissionComplete),
+            ChannelOutput::ToDevice(self.head, ChannelToDevice::ReadyToTransmit),
         ));
         events
     }

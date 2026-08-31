@@ -4,7 +4,7 @@ use crate::core::util::id::IdGenerator;
 pub struct ChannelId(u64);
 
 impl IdGenerator {
-    pub fn new_channel_id(&mut self) -> ChannelId {
+    pub fn new_channel_id(&self) -> ChannelId {
         let id = self.get_id();
         ChannelId(id)
     }

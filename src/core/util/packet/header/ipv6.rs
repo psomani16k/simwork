@@ -26,6 +26,7 @@ use std::ops::{Index, IndexMut};
 
 use crate::core::util::{
     address::Ipv6Address,
+    packet::{Packet, Wrap, data::PacketData, header::Header, id::PacketId, trailer::Trailer},
     size::{Size, SizeOf},
 };
 
@@ -92,6 +93,17 @@ impl Index<usize> for Ipv6Header {
 impl SizeOf for Ipv6Header {
     fn size(&self) -> Size {
         Size::from_bytes(40)
+    }
+}
+
+impl Wrap<Ipv6Header> for Packet {
+    fn wrap(self, header: Ipv6Header, id: PacketId) -> Self {
+        Self {
+            header: Header::IPv6(header),
+            data: PacketData::Packet(Box::new(self)),
+            trailer: Trailer::None,
+            id,
+        }
     }
 }
 

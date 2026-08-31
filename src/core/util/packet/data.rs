@@ -14,7 +14,7 @@ pub enum PacketData {
 impl Into<Vec<u8>> for PacketData {
     fn into(self) -> Vec<u8> {
         match self {
-            PacketData::Data(items) => items.clone(),
+            PacketData::Data(items) => items,
             PacketData::Packet(packet) => (*packet).into(),
         }
     }

@@ -4,7 +4,7 @@ use crate::core::util::id::IdGenerator;
 pub struct ApplicationId(u64);
 
 impl IdGenerator {
-    pub fn new_application_id(&mut self) -> ApplicationId {
+    pub fn new_application_id(&self) -> ApplicationId {
         let id = self.get_id();
         ApplicationId(id)
     }

@@ -4,7 +4,7 @@ use crate::core::util::id::IdGenerator;
 pub struct DeviceId(u64);
 
 impl IdGenerator {
-    pub fn new_device_id(&mut self) -> DeviceId {
+    pub fn new_device_id(&self) -> DeviceId {
         let id = self.get_id();
         DeviceId(id)
     }

@@ -16,7 +16,11 @@
 
 use std::ops::{Index, IndexMut};
 
-use crate::core::util::{address::Ipv4Address, size::{Size, SizeOf}};
+use crate::core::util::{
+    address::Ipv4Address,
+    packet::{Packet, Wrap, data::PacketData, header::Header, id::PacketId, trailer::Trailer},
+    size::{Size, SizeOf},
+};
 
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Ipv4Header {
@@ -86,6 +90,17 @@ impl Index<usize> for Ipv4Header {
 impl SizeOf for Ipv4Header {
     fn size(&self) -> Size {
         Size::from_bytes(20) + self.options.size()
+    }
+}
+
+impl Wrap<Ipv4Header> for Packet {
+    fn wrap(self, header: Ipv4Header, id: PacketId) -> Self {
+        Self {
+            header: Header::IPv4(header),
+            data: PacketData::Packet(Box::new(self)),
+            trailer: Trailer::None,
+            id,
+        }
     }
 }
 

@@ -15,6 +15,7 @@ use std::ops::{Index, IndexMut};
 
 use crate::core::util::{
     address::Port,
+    packet::{Packet, Wrap, data::PacketData, header::Header, id::PacketId, trailer::Trailer},
     size::{Size, SizeOf},
 };
 
@@ -89,5 +90,16 @@ impl Into<Vec<u8>> for UdpHeader {
         bytes.extend_from_slice(&self.len);
         bytes.extend_from_slice(&self.checksum);
         bytes
+    }
+}
+
+impl Wrap<UdpHeader> for Packet {
+    fn wrap(self, header: UdpHeader, id: PacketId) -> Self {
+        Self {
+            header: Header::UDP(header),
+            data: PacketData::Packet(Box::new(self)),
+            trailer: Trailer::None,
+            id,
+        }
     }
 }

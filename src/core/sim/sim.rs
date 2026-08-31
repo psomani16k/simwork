@@ -13,8 +13,6 @@ use crate::core::{
 
 #[derive(Default)]
 pub struct Sim {
-    now: SimTime,
-
     ctx: SimCtx,
 
     /// Application layer
@@ -45,15 +43,15 @@ impl Sim {
     }
 
     pub fn now(&self) -> SimTime {
-        self.now
+        self.ctx.now
     }
 
     pub fn run(&mut self) {
         while let Some(event) = self.queue.pop_event() {
-            if event.is_cancelled() || self.now.is_after(event.timestamp()) {
+            if event.is_cancelled() || self.now().is_after(event.timestamp()) {
                 continue;
             }
-            self.now = event.timestamp();
+            self.ctx.now = event.timestamp();
             self.handle_event(event);
         }
     }

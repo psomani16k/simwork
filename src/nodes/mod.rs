@@ -15,12 +15,12 @@ use crate::{
     nodes::{ipv4::Ipv4Node, ipv6::Ipv6Node},
 };
 
-pub struct GenericNode {
+pub struct DemuxNode {
     ipv4_router: Option<Ipv4Node>,
     ipv6_router: Option<Ipv6Node>,
 }
 
-impl NodeImpl for GenericNode {
+impl NodeImpl for DemuxNode {
     fn on_packet_from_socket(
         &mut self,
         ctx: &SimCtx,

@@ -1,6 +1,6 @@
 use crate::core::{
     channel::id::ChannelId,
-    device::{id::DeviceId, interface::DeviceImpl},
+    device::{ctx::DeviceCtx, id::DeviceId, interface::DeviceImpl},
     event::{
         EventType,
         channel_events::ChannelEvent,
@@ -9,14 +9,14 @@ use crate::core::{
     },
     node::id::NodeId,
     sim::ctx::SimCtx,
-    util::{address::IpAddress, duration::Duration, time::SimTime},
+    util::{address::MacAddress, duration::Duration, time::SimTime},
 };
 
 pub struct Device {
     id: DeviceId,
     node: NodeId,
     channel: ChannelId,
-    ip_addr: IpAddress,
+    mac_address: MacAddress,
 
     device_impl: Box<dyn DeviceImpl>,
 }
@@ -24,10 +24,6 @@ pub struct Device {
 impl Device {
     pub fn get_id(&self) -> DeviceId {
         self.id
-    }
-
-    pub fn ip_address(&self) -> IpAddress {
-        self.ip_addr
     }
 
     pub fn handle_event(&mut self, ctx: &SimCtx, event: DeviceEvent) -> Vec<(SimTime, EventType)> {
@@ -72,8 +68,14 @@ impl Device {
         ctx: &SimCtx,
         event: NodeToDevice,
     ) -> Vec<(Duration, DeviceOutput)> {
+        let ctx = DeviceCtx {
+            sim_ctx: ctx,
+            mac_addr: self.mac_address,
+        };
         match event {
-            NodeToDevice::Send(packet) => self.device_impl.on_packet_from_node(ctx, packet),
+            NodeToDevice::Send(packet, protocol, dest_mac) => self
+                .device_impl
+                .on_packet_from_node(&ctx, packet, protocol, dest_mac),
         }
     }
 
@@ -82,10 +84,16 @@ impl Device {
         ctx: &SimCtx,
         event: ChannelToDevice,
     ) -> Vec<(Duration, DeviceOutput)> {
+        let ctx = DeviceCtx {
+            sim_ctx: ctx,
+            mac_addr: self.mac_address,
+        };
         match event {
-            ChannelToDevice::Data(packet) => self.device_impl.on_packet_from_channel(ctx, packet),
-            ChannelToDevice::TransmissionComplete => todo!(),
-            ChannelToDevice::ChannelBusy => todo!(),
+            ChannelToDevice::Data(packet) => self.device_impl.on_packet_from_channel(&ctx, packet),
+            ChannelToDevice::ReadyToTransmit => todo!(),
+            ChannelToDevice::ChannelBusy(returned_packet) => {
+                self.device_impl.on_channel_busy(&ctx, returned_packet)
+            }
         }
     }
 }

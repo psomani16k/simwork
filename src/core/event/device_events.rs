@@ -1,9 +1,7 @@
 use crate::core::{
     event::{channel_events::DeviceToChannel, node_events::DeviceToNode},
-    util::{
-        address::IpAddress,
-        packet::{Packet, header::Header},
-    },
+    node::protocol_key::NodeProtocolKey,
+    util::{address::MacAddress, packet::Packet},
 };
 
 pub enum DeviceEvent {
@@ -15,25 +13,17 @@ pub enum DeviceEvent {
 pub enum DeviceToSelf {}
 
 pub enum NodeToDevice {
-    Send(Packet),
+    Send(
+        Packet,
+        NodeProtocolKey,
+        MacAddress, // next hop mac
+    ),
 }
 
 pub enum ChannelToDevice {
     Data(Packet),
-    TransmissionComplete,
-    ChannelBusy,
-}
-
-impl NodeToDevice {
-    pub fn source_ip_address(&self) -> Option<IpAddress> {
-        match self {
-            NodeToDevice::Send(packet) => match packet.peek_header() {
-                Header::IPv4(ipv4_header) => Some(IpAddress::Ipv4(ipv4_header.source_addr())),
-                Header::IPv6(ipv6_header) => Some(IpAddress::Ipv6(ipv6_header.source_addr())),
-                _ => None,
-            },
-        }
-    }
+    ReadyToTransmit,
+    ChannelBusy(Packet),
 }
 
 pub enum DeviceOutput {
