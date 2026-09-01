@@ -63,6 +63,8 @@ pub enum Port {
 pub struct MacAddress([u8; 6]);
 
 impl MacAddress {
+    pub const BROADCAST: Self = MacAddress([255u8; 6]);
+
     pub fn new(octets: [u8; 6]) -> Self {
         Self(octets)
     }

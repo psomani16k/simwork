@@ -5,7 +5,7 @@ use crate::core::util::{
     size::{Size, SizeOf},
 };
 
-#[derive(Clone)]
+#[derive(Debug)]
 pub enum PacketData {
     Data(Vec<u8>),
     Packet(Box<Packet>),

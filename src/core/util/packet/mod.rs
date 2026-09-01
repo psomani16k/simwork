@@ -10,7 +10,7 @@ use crate::core::util::{
     size::{Size, SizeOf},
 };
 
-#[derive(Clone)]
+#[derive(Debug)]
 pub struct Packet {
     header: Header,
     data: PacketData,

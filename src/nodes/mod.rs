@@ -1,3 +1,4 @@
+pub mod arp;
 pub mod ipv4;
 pub mod ipv6;
 
@@ -12,12 +13,13 @@ use crate::{
             packet::{Packet, header::Header},
         },
     },
-    nodes::{ipv4::Ipv4Node, ipv6::Ipv6Node},
+    nodes::{arp::ArpNode, ipv4::Ipv4Node, ipv6::Ipv6Node},
 };
 
 pub struct DemuxNode {
     ipv4_router: Option<Ipv4Node>,
     ipv6_router: Option<Ipv6Node>,
+    arp_node: Option<ArpNode>,
 }
 
 impl NodeImpl for DemuxNode {
@@ -65,7 +67,25 @@ impl NodeImpl for DemuxNode {
                     vec![]
                 }
             }
-            _ => vec![],
+            Header::ARP(_) => {
+                if let Some(arp_node) = self.arp_node.as_mut() {
+                    arp_node.on_packet_from_device(ctx, packet)
+                } else {
+                    vec![]
+                }
+            }
+            Header::Ethernet(_) => {
+                vec![]
+            }
+            Header::RawData => {
+                vec![]
+            }
+            Header::TCP(_) => {
+                vec![]
+            }
+            Header::UDP(_) => {
+                vec![]
+            }
         }
     }
 }

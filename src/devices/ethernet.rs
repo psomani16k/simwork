@@ -60,7 +60,9 @@ impl DeviceImpl for EthernetDevice {
         let Header::Ethernet(header) = header else {
             return vec![];
         };
-        if header.destination_mac() != ctx.mac_addr {
+        if header.destination_mac() != ctx.mac_addr
+            && header.destination_mac() != MacAddress::BROADCAST
+        {
             return vec![];
         }
         let PacketData::Packet(payload) = payload else {

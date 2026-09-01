@@ -43,7 +43,6 @@ pub struct Ipv4Header {
 }
 
 impl Ipv4Header {
-    
     pub fn source_addr(&self) -> Ipv4Address {
         Ipv4Address::new(self.source_addr)
     }

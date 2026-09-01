@@ -1,11 +1,6 @@
-use crate::core::util::time::SimTime;
+use crate::core::sim::ctx::SimCtx;
 
-pub struct NodeCtx {
-    pub now: SimTime,
+pub struct NodeCtx<'a> {
+    pub sim_ctx: &'a SimCtx,
 }
 
-impl NodeCtx {
-    pub fn new(now: SimTime) -> Self {
-        NodeCtx { now }
-    }
-}

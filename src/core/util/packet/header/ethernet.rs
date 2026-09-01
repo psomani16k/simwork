@@ -24,7 +24,13 @@ use std::ops::{Index, IndexMut};
 
 use crate::core::util::{
     address::MacAddress,
-    packet::{Packet, Wrap, data::PacketData, header::Header, id::PacketId, trailer::{EthernetPaddingFcs, Trailer}},
+    packet::{
+        Packet, Wrap,
+        data::PacketData,
+        header::Header,
+        id::PacketId,
+        trailer::{EthernetPaddingFcs, Trailer},
+    },
     size::{Size, SizeOf},
 };
 
