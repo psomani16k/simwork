@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 use crate::core::{
     channel::{id::ChannelId, interface::ChannelImpl},
@@ -9,11 +9,12 @@ use crate::core::{
         device_events::DeviceEvent,
     },
     sim::ctx::SimCtx,
-    util::{duration::Duration, time::SimTime},
+    util::{address::MacAddress, duration::Duration, time::SimTime},
 };
 
 pub struct Channel {
     id: ChannelId,
+    devices: HashMap<MacAddress, DeviceId>,
 
     channel_impl: Box<dyn ChannelImpl>,
 }
@@ -38,7 +39,8 @@ impl Channel {
                     ChannelOutput::ToSelf(channel_to_self) => {
                         EventType::ToChannel(self.id, ChannelEvent::FromSelf(channel_to_self))
                     }
-                    ChannelOutput::ToDevice(device_id, channel_to_device) => {
+                    ChannelOutput::ToDevice(mac, channel_to_device) => {
+                        let device_id = *self.devices.get(&mac)?;
                         EventType::ToDevice(device_id, DeviceEvent::FromChannel(channel_to_device))
                     }
                 };
@@ -58,7 +60,7 @@ impl Channel {
     fn handle_event_from_device(
         &mut self,
         ctx: &SimCtx,
-        source: DeviceId,
+        source: MacAddress,
         event: DeviceToChannel,
     ) -> Vec<(Duration, ChannelOutput)> {
         match event {

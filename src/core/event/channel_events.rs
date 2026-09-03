@@ -1,10 +1,11 @@
 use crate::core::{
-    device::id::DeviceId, event::device_events::ChannelToDevice, util::packet::Packet,
+    event::device_events::ChannelToDevice,
+    util::{address::MacAddress, packet::Packet},
 };
 
 pub enum ChannelEvent {
     FromSelf(ChannelToSelf),
-    FromDevice(DeviceId, DeviceToChannel),
+    FromDevice(MacAddress, DeviceToChannel),
 }
 
 pub enum ChannelToSelf {}
@@ -15,5 +16,5 @@ pub enum DeviceToChannel {
 
 pub enum ChannelOutput {
     ToSelf(ChannelToSelf),
-    ToDevice(DeviceId, ChannelToDevice),
+    ToDevice(MacAddress, ChannelToDevice),
 }

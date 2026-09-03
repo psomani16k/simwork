@@ -47,7 +47,7 @@ impl Device {
                     }
                     DeviceOutput::ToChannel(device_to_channel) => EventType::ToChannel(
                         self.channel,
-                        ChannelEvent::FromDevice(self.id, device_to_channel),
+                        ChannelEvent::FromDevice(self.mac_address, device_to_channel),
                     ),
                 };
                 (ctx.now + delay, event)

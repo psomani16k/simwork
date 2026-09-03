@@ -1,15 +1,17 @@
 use crate::core::{
     channel::interface::ChannelImpl,
-    device::id::DeviceId,
     event::{channel_events::ChannelOutput, device_events::ChannelToDevice},
     sim::ctx::SimCtx,
-    util::{bandwidth::Bandwidth, duration::Duration, packet::Packet, size::SizeOf, time::SimTime},
+    util::{
+        address::MacAddress, bandwidth::Bandwidth, duration::Duration, packet::Packet,
+        size::SizeOf, time::SimTime,
+    },
 };
 
 pub struct P2PDuplexChannel {
-    head: DeviceId,
+    head: MacAddress,
     head_busy_till: SimTime,
-    tail: DeviceId,
+    tail: MacAddress,
     tail_busy_till: SimTime,
 
     inter_frame_delay: Duration,
@@ -21,7 +23,7 @@ impl ChannelImpl for P2PDuplexChannel {
     fn on_packet_from_device(
         &mut self,
         ctx: &SimCtx,
-        source: DeviceId,
+        source: MacAddress,
         packet: Packet,
     ) -> Vec<(Duration, ChannelOutput)> {
         if source != self.head && source != self.tail {
@@ -63,8 +65,8 @@ impl ChannelImpl for P2PDuplexChannel {
 }
 
 pub struct P2PSimplexChannel {
-    head: DeviceId,
-    tail: DeviceId,
+    head: MacAddress,
+    tail: MacAddress,
     channel_busy_till: SimTime,
 
     inter_frame_delay: Duration,
@@ -76,7 +78,7 @@ impl ChannelImpl for P2PSimplexChannel {
     fn on_packet_from_device(
         &mut self,
         ctx: &SimCtx,
-        source: DeviceId,
+        source: MacAddress,
         packet: Packet,
     ) -> Vec<(Duration, ChannelOutput)> {
         if source != self.head {
